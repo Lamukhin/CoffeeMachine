@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_history")
+@Table(name = "usage_counters")
 @Getter
 @Setter
 public class UsageCountersEntity {
