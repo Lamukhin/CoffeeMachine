@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: CoffeeMachine
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/coffeemachine
+    username: postgres
+    password: SomePassword1997
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
