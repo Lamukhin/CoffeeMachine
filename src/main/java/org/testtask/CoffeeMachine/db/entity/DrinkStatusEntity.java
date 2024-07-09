@@ -4,20 +4,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_history")
+@Table(name = "drink_status")
 @Getter
 @Setter
-public class OrderHistoryEntity {
+public class DrinkStatusEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private UUID id;
     @Column(name = "drink_id")
     private UUID drinkId;
-    @Column(name = "timestamp")
-    private Timestamp orderTimestamp;
+    @Column(name = "can_create")
+    private boolean canCreate;
+    @Column(name = "reason_if_cant")
+    private String reasonIfCant;
+
 }

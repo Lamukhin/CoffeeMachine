@@ -23,5 +23,7 @@ public class DrinkEntity {
     private int milk;
     @Column(name = "coffee_bean_gr")
     private int coffeeBean;
+    @Column(name = "make_duration_sec")
+    private int makeDuration;
 
 }

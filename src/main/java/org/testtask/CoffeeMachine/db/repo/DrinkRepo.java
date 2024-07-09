@@ -6,4 +6,6 @@ import org.testtask.CoffeeMachine.db.entity.DrinkEntity;
 import java.util.UUID;
 
 public interface DrinkRepo extends JpaRepository<DrinkEntity, UUID> {
+
+    DrinkEntity findDrinkEntityByName(String name);
 }

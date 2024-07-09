@@ -1,5 +1,7 @@
 package org.testtask.CoffeeMachine.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.testtask.CoffeeMachine.exception.CoffeeMachineException;
 import org.testtask.CoffeeMachine.exception.IncorrectNameException;
 import org.testtask.CoffeeMachine.service.interfaces.CreateDrinkService;
+import org.testtask.CoffeeMachine.service.interfaces.DrinksService;
 
 @Controller
 @RequestMapping("/drink/")
@@ -17,6 +20,21 @@ import org.testtask.CoffeeMachine.service.interfaces.CreateDrinkService;
 public class CreateDrinkController {
 
     private final CreateDrinkService createDrinkService;
+    private final DrinksService drinksService;
+    private final ObjectMapper objectMapper;
+
+    @GetMapping
+    public ResponseEntity<String> getAvailableDrinks() {
+        try {
+            return ResponseEntity.ok(
+                    objectMapper.writeValueAsString(
+                            drinksService.refreshAvailableDrinks()
+                    )
+            );
+        } catch (RuntimeException | JsonProcessingException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping
     public ResponseEntity<String> createNewDrink(
