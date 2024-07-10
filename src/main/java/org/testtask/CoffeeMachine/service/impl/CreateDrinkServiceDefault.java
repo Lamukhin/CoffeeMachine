@@ -2,79 +2,84 @@ package org.testtask.CoffeeMachine.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.testtask.CoffeeMachine.db.entity.CoffeeMachineStateEntity;
 import org.testtask.CoffeeMachine.db.entity.DrinkEntity;
-import org.testtask.CoffeeMachine.dto.AvailableDrinkDto;
-import org.testtask.CoffeeMachine.exception.IncorrectNameException;
-import org.testtask.CoffeeMachine.service.interfaces.CoffeeMachineService;
+import org.testtask.CoffeeMachine.db.entity.OrderHistoryEntity;
+import org.testtask.CoffeeMachine.db.entity.UsageCountersEntity;
+import org.testtask.CoffeeMachine.db.repo.CoffeeMachineStateRepo;
+import org.testtask.CoffeeMachine.db.repo.OrderHistoryRepo;
+import org.testtask.CoffeeMachine.db.repo.UsageCountersRepo;
 import org.testtask.CoffeeMachine.service.interfaces.CreateDrinkService;
-import org.testtask.CoffeeMachine.service.interfaces.DrinksService;
 
-import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class CreateDrinkServiceDefault implements CreateDrinkService {
 
-    private final CoffeeMachineService coffeeMachineService;
-    private final DrinksService drinksService;
-    private long nextDrinkCanCreateTimestamp = 0; //обновляется в момент начала создания: текущая метка + время создания напитка * 1000
+    private final UsageCountersRepo usageCountersRepo;
+    private final OrderHistoryRepo orderHistoryRepo;
+    private final CoffeeMachineStateRepo coffeeMachineStateRepo;
 
     @Override
-    public String makeADrink(String name) {
+    @Transactional
+    public String createNewCoffee(DrinkEntity chosenDrinkEntity, long nextDrinkCanBeCreatedTimestamp) {
 
-        String responseMessage;
+        StringBuilder response = new StringBuilder();
+        response.append("Ваш напиток готовится, время приготовления: ");
+        response.append(chosenDrinkEntity.getMakeDuration());
+        response.append(" секунд.");
 
-
-        List<String> drinkNames = getAvailableDrinksNames();
-        if (!drinkNames.isEmpty()) {
-
-            DrinkEntity chosenDrinkEntity = drinksService.findDrinkByName(name);
-            if (chosenDrinkEntity == null) {
-                responseMessage =
-                        "Данный напиток не найден в системе! Список доступных сейчас: "
-                                + drinkNames;
-                throw new IncorrectNameException(responseMessage);
-            } else if (!drinkNames.contains(name)) {
-                String reason = drinksService.checkWhyCantCreate(name);
-                responseMessage =
-                        "В данный момент кофемашина не может приготовить данный напиток: " + reason;
-                throw new RuntimeException(responseMessage);
-            }
-
-            if (machineIsFreeToBrew()) {
-                try {
-                    return createNewCoffee(name);
-                } catch (RuntimeException ex) {
-                    throw new RuntimeException(ex.getMessage());
-                }
-            } else {
-                throw new RuntimeException("В данный момент машина уже создает другой напиток, " +
-                        "осталось " + secondsLeft() + " секунд");
-            }
+        UsageCountersEntity usageCountersEntity;
+        try {
+            usageCountersEntity = updateUsageCounters(chosenDrinkEntity);
+        } catch (RuntimeException ex){
+            throw new RuntimeException();
         }
-        /*else {
-            String status = coffeeMachineService.getMachineStatus();
-            responseMessage = "С машиной проблема: " + status;
-        }*/
-        return null;
+
+        orderHistoryRepo.save(new OrderHistoryEntity(chosenDrinkEntity.getId()));
+
+        CoffeeMachineStateEntity coffeeMachineStateEntity = coffeeMachineStateRepo.findAll().get(0);
+        if(coffeeMachineStateEntity != null) {
+
+            if (usageCountersEntity.getDrinkMadeCounter() >= 50) {
+                coffeeMachineStateEntity.setCleaningRequired(true);
+                response.append("ВНИМАНИЕ! Кофемашине требуется чистка!");
+            }
+
+            if (usageCountersEntity.getLiquidInTray() >= 300)
+                coffeeMachineStateEntity.setTrayFull(true);
+
+            //введём условную вероятность поломки машины
+            if (cmIsBroken())
+                coffeeMachineStateEntity.setRepairRequired(true);
+
+            coffeeMachineStateRepo.save(coffeeMachineStateEntity);
+        } else {
+            throw new RuntimeException();
+        }
+        nextDrinkCanBeCreatedTimestamp = System.currentTimeMillis() + chosenDrinkEntity.getMakeDuration() * 1000L;
+        return response.toString();
     }
 
-    private String createNewCoffee(String name) {
-        if ()
+    private UsageCountersEntity updateUsageCounters(DrinkEntity chosenDrinkEntity) {
+
+        UsageCountersEntity usageCountersEntity = usageCountersRepo.findAll().get(0);
+        if(usageCountersEntity != null) {
+            usageCountersEntity.setBeansAvailable(usageCountersEntity.getBeansAvailable() - chosenDrinkEntity.getCoffeeBean());
+            usageCountersEntity.setWaterAvailable(usageCountersEntity.getWaterAvailable() - chosenDrinkEntity.getWater());
+            usageCountersEntity.setMilkAvailable(usageCountersEntity.getMilkAvailable() - chosenDrinkEntity.getMilk());
+            usageCountersEntity.setLiquidInTray(usageCountersEntity.getLiquidInTray() + 10);
+            usageCountersEntity.setDrinkMadeCounter(usageCountersEntity.getDrinkMadeCounter() + 1);
+            return usageCountersRepo.save(usageCountersEntity);
+        }
+        throw new RuntimeException("В базе нет информации по использованию кофемашины.");
     }
 
-    private List<String> getAvailableDrinksNames() {
-        return drinksService.refreshAvailableDrinks()
-                .stream()
-                .map(AvailableDrinkDto::name)
-                .toList();
-    }
-
-    private long secondsLeft() {
-        return (nextDrinkCanCreateTimestamp - System.currentTimeMillis()) / 1000;
-    }
-
-    private boolean machineIsFreeToBrew() {
-        return System.currentTimeMillis() > nextDrinkCanCreateTimestamp;
+    private boolean cmIsBroken() {
+        Random random = new Random();
+        int randomInt = random.nextInt(10000) + 1;
+        return randomInt == 1;
     }
 }

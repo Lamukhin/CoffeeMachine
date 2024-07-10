@@ -2,6 +2,7 @@ package org.testtask.CoffeeMachine.db.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Table(name = "order_history")
 @Getter
 @Setter
+@NoArgsConstructor
 public class OrderHistoryEntity {
 
     @Id
@@ -20,4 +22,10 @@ public class OrderHistoryEntity {
     private UUID drinkId;
     @Column(name = "timestamp")
     private Timestamp orderTimestamp;
+
+
+    public OrderHistoryEntity(UUID drinkId) {
+        this.drinkId = drinkId;
+        this.orderTimestamp = new Timestamp(System.currentTimeMillis());
+    }
 }

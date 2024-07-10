@@ -19,7 +19,7 @@ public class DrinkStatusEntity {
     private UUID drinkId;
     @Column(name = "can_create")
     private boolean canCreate;
-    @Column(name = "reason_if_cant")
-    private String reasonIfCant;
+    @Column(name = "text_status")
+    private String textStatus;
 
 }

@@ -1,6 +1,8 @@
 package org.testtask.CoffeeMachine.service.interfaces;
 
+import org.testtask.CoffeeMachine.db.entity.DrinkEntity;
+
 public interface CreateDrinkService {
 
-    String makeADrink(String name);
+    String createNewCoffee(DrinkEntity chosenDrinkEntity, long nextDrinkCanBeCreatedTimestamp);
 }

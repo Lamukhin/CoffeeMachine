@@ -18,12 +18,6 @@ public class CoffeeMachineStateEntity {
     private UUID id;
     @Column(name = "factory_number")
     private String factoryNumber;
-    @Column(name = "no_water")
-    private boolean noWater;
-    @Column(name = "no_milk")
-    private boolean noMilk;
-    @Column(name = "no_beans")
-    private boolean noBeans;
     @Column(name = "cleaning_required")
     private boolean cleaningRequired;
     @Column(name = "tray_full")
