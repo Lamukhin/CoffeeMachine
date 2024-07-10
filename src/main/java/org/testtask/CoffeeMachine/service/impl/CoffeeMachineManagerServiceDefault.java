@@ -25,7 +25,7 @@ public class CoffeeMachineManagerServiceDefault implements CoffeeMachineManagerS
     private final CoffeeMachineStateRepo coffeeMachineStateRepo;
     private final CreateDrinkService createDrinkService;
     //обновляется в момент начала создания: текущая метка + продолжительность создания напитка * 1000
-    private long nextDrinkCanBeCreatedTimestamp = 0;
+    private Long nextDrinkCanBeCreatedTimestamp = 0L;
 
     @Override
     public String makeADrink(String name) {

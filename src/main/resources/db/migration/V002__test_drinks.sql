@@ -1,5 +1,3 @@
--- duration in seconds
-ALTER TABLE IF EXISTS drink RENAME COLUMN make_duration TO make_duration_sec;
 
 INSERT INTO drink (id, name, water_gr, milk_gr, coffee_bean_gr, make_duration_sec)
 VALUES ('550e8400-e29b-41d4-a716-446655440000', 'Espresso', 30, 0, 7, 25);

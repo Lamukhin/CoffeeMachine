@@ -24,7 +24,7 @@ public class CreateDrinkServiceDefault implements CreateDrinkService {
 
     @Override
     @Transactional
-    public String createNewCoffee(DrinkEntity chosenDrinkEntity, long nextDrinkCanBeCreatedTimestamp) {
+    public String createNewCoffee(DrinkEntity chosenDrinkEntity, Long nextDrinkCanBeCreatedTimestamp) {
 
         StringBuilder response = new StringBuilder();
         response.append("Ваш напиток готовится, время приготовления: ");
