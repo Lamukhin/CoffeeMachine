@@ -31,8 +31,6 @@ public class CreateDrinkController {
                             drinksService.refreshAvailableDrinks()
                     )
             );
-        } catch (RuntimeException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (JsonProcessingException ex) {
             var response = "Произошел сбой при отправке ответа. Попробуйте выполнить запрос повторно.";
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
