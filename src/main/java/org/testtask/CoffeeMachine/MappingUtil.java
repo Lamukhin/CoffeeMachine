@@ -9,7 +9,7 @@ public class MappingUtil {
 
         return new AvailableDrinkDto(
                 drinkEntity.getName(),
-                "" + drinkEntity.getMilk() + drinkEntity.getWater(),
+                String.valueOf(drinkEntity.getMilk() + drinkEntity.getWater()),
                 getDrinkComposition(drinkEntity)
         );
     }

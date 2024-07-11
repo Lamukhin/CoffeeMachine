@@ -64,14 +64,16 @@ public class CoffeeMachineManagerServiceDefault implements CoffeeMachineManagerS
 
         if (machineIsFreeToBrew()) {
             try {
-                return createDrinkService.createNewCoffee(chosenDrinkEntity, nextDrinkCanBeCreatedTimestamp);
+                String response = createDrinkService.createNewCoffee(chosenDrinkEntity);
+                nextDrinkCanBeCreatedTimestamp = System.currentTimeMillis() + chosenDrinkEntity.getMakeDuration() * 1000L;
+                return response;
             } catch (Exception ex) {
                 responseMessage = "Во время приготовления произошёл сбой: " + ex.getMessage();
                 throw new CoffeeMachineException(responseMessage);
             }
         } else {
             responseMessage = "В данный момент машина уже создает другой напиток, " +
-                    "осталось дождаться" + secondsLeft() + " секунд.";
+                    "осталось дождаться " + secondsLeft() + " секунд.";
             throw new CoffeeMachineException(responseMessage);
         }
     }

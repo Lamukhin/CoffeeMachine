@@ -16,13 +16,12 @@ import java.util.UUID;
 public class OrderHistoryEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "drink_id")
     private UUID drinkId;
     @Column(name = "timestamp")
     private Timestamp orderTimestamp;
-
 
     public OrderHistoryEntity(UUID drinkId) {
         this.drinkId = drinkId;

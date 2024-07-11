@@ -3,19 +3,16 @@ package org.testtask.CoffeeMachine.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.testtask.CoffeeMachine.exception.CoffeeMachineException;
-import org.testtask.CoffeeMachine.exception.IncorrectNameException;
 import org.testtask.CoffeeMachine.service.interfaces.CoffeeMachineManagerService;
 import org.testtask.CoffeeMachine.service.interfaces.DrinksService;
 
 @Controller
-@RequestMapping("/drink/")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CreateDrinkController {
 
@@ -23,37 +20,22 @@ public class CreateDrinkController {
     private final DrinksService drinksService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping
-    public ResponseEntity<String> getAvailableDrinks() {
-        try {
-            return ResponseEntity.ok(
-                    objectMapper.writeValueAsString(
-                            drinksService.refreshAvailableDrinks()
-                    )
-            );
-        } catch (JsonProcessingException ex) {
-            var response = "Произошел сбой при отправке ответа. Попробуйте выполнить запрос повторно.";
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/drinks")
+    public ResponseEntity<String> getAvailableDrinks() throws JsonProcessingException {
+        return ResponseEntity.ok(
+                objectMapper.writeValueAsString(
+                        drinksService.refreshAvailableDrinks()
+                )
+        );
     }
 
-    @GetMapping
+    @GetMapping("/drink")
     public ResponseEntity<String> createNewDrink(
-            @RequestParam(name = "name") String name) {
-        try {
-            return ResponseEntity.ok(
-                    objectMapper.writeValueAsString(
-                            coffeeMachineManagerService.makeADrink(name)
-                    )
-            );
-        } catch (IncorrectNameException ex) {
-            return new ResponseEntity<>(ex.getMessageForUser(), HttpStatus.BAD_REQUEST);
-        } catch (CoffeeMachineException ex) {
-            return new ResponseEntity<>(ex.getMessageForUser(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (JsonProcessingException ex) {
-            var response = "Произошел сбой при отправке ответа. Попробуйте выполнить запрос повторно.";
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+            @RequestParam(name = "name") String name) throws JsonProcessingException {
+        return ResponseEntity.ok(
+                objectMapper.writeValueAsString(
+                        coffeeMachineManagerService.makeADrink(name)
+                )
+        );
     }
 }
